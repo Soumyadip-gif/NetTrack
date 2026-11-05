@@ -1,0 +1,41 @@
+
+# Environment variables
+.env
+
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Testing
+.pytest_cache/
+.coverage
+
+# Database
+instance/*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Runtime monitoring status
+instance/monitor_status.json
+
+# Backup files
+*.bak
+*.bak.*
+
+# Temporary development scripts
+/add_mobile_finder_backend.py
+/add_nearby_spots_ui.py

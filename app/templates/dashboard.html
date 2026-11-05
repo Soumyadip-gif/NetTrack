@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1120">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>NetTrack | Network Intelligence</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">N</div>
+                <span>NetTrack</span>
+            </div>
+
+            <div class="nav-label">WORKSPACE</div>
+            <a href="/" class="nav-item active">▦ Dashboard</a>
+            <a href="#interfaces" class="nav-item">⌁ Network Interfaces</a>
+            <a href="#traffic" class="nav-item">◷ Traffic Analytics</a>
+            <a href="#wifi" class="nav-item">Wi-Fi Scanner</a>
+
+            <div class="sidebar-footer">
+                <div class="status-dot"></div>
+                <span>Local monitoring</span>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">NETWORK INTELLIGENCE</p>
+                    <h1>Network Dashboard</h1>
+                    <p class="subtitle">Monitor your network performance in real time.</p>
+                </div>
+
+                <div class="topbar-status">
+                    <span class="status-dot" id="workerDot"></span>
+                    <span id="workerStatus">Checking monitor...</span>
+                </div>
+            </header>
+
+            <section class="overview-grid">
+                <article class="metric-card">
+                    <div class="card-heading">
+                        <span>Download Speed</span>
+                        <span class="metric-icon download">↓</span>
+                    </div>
+                    <div class="metric-value">
+                        <span id="downloadSpeed">0.000</span>
+                        <small>Mbps</small>
+                    </div>
+                    <p class="metric-description">Current incoming traffic</p>
+                </article>
+
+                <article class="metric-card">
+                    <div class="card-heading">
+                        <span>Upload Speed</span>
+                        <span class="metric-icon upload">↑</span>
+                    </div>
+                    <div class="metric-value">
+                        <span id="uploadSpeed">0.000</span>
+                        <small>Mbps</small>
+                    </div>
+                    <p class="metric-description">Current outgoing traffic</p>
+                </article>
+
+                <article class="metric-card">
+                    <div class="card-heading">
+                        <span>Active Interfaces</span>
+                        <span class="metric-icon interface">⌁</span>
+                    </div>
+                    <div class="metric-value">
+                        <span id="activeInterfaces">0</span>
+                    </div>
+                    <p class="metric-description">Network interfaces currently up</p>
+                </article>
+
+                <article class="metric-card">
+                    <div class="card-heading">
+                        <span>Saved Measurements</span>
+                        <span class="metric-icon saved">◷</span>
+                    </div>
+                    <div class="metric-value">
+                        <span id="totalMeasurements">0</span>
+                    </div>
+                    <p class="metric-description">Historical records in database</p>
+                </article>
+            </section>
+
+            <section class="panel" id="traffic">
+                <div class="panel-header">
+                    <div>
+                        <h2>Network Traffic</h2>
+                        <p>Live download and upload measurements</p>
+                    </div>
+                    <span class="live-label"><span class="status-dot"></span> LIVE</span>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+            </section>
+
+
+
+            <section class="panel" id="location-intelligence">
+                <div class="panel-header">
+                    <div>
+                        <h2>Location Intelligence</h2>
+                        <p>Find your current position for nearby network coverage analysis</p>
+                    </div>
+                    <button type="button" class="scan-button" id="detectLocationButton">
+                        Detect My Location
+                    </button>
+                </div>
+
+                <div class="location-status" id="locationStatus">
+                    Location access has not been requested.
+                </div>
+
+                <div class="location-details">
+                    <div class="location-detail-card">
+                        <span>Latitude</span>
+                        <strong id="latitudeValue">--</strong>
+                    </div>
+                    <div class="location-detail-card">
+                        <span>Longitude</span>
+                        <strong id="longitudeValue">--</strong>
+                    </div>
+                    <div class="location-detail-card">
+                        <span>Accuracy</span>
+                        <strong id="accuracyValue">--</strong>
+                    </div>
+                </div>
+
+                <div id="locationMap" class="location-map"></div>
+
+                <p class="wifi-note">
+                    Your coordinates are displayed locally in this browser and are not automatically saved.
+                </p>
+            </section>
+
+
+            <section class="panel" id="best-spots">
+                <div class="panel-header">
+                    <div>
+                        <h2>Best Nearby Internet Spots</h2>
+                        <p>Discover nearby places with real measured network performance</p>
+                    </div>
+                </div>
+
+                <div class="nearby-search-controls">
+                    <div class="nearby-radius-control">
+                        <label for="nearbyRadius">Search radius</label>
+                        <select id="nearbyRadius">
+                            <option value="0.5">500 metres</option>
+                            <option value="1">1 km</option>
+                            <option value="3" selected>3 km (Recommended)</option>
+                            <option value="5">5 km</option>
+                            <option value="10">10 km</option>
+                        </select>
+                    </div>
+                    <button type="button" class="scan-button" id="findNearbySpotsButton" disabled>
+                        Find Best Nearby Spots
+                    </button>
+                </div>
+
+                <p id="nearbySpotsStatus" class="wifi-note">
+                    Detect your GPS location first to search nearby measured spots.
+                </p>
+
+                <div id="nearbySpotsResults" class="nearby-spots-results">
+                    <div class="empty-state">
+                        No nearby search has been performed yet.
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="wifi">
+                <div class="panel-header wifi-panel-header">
+                    <div>
+                        <h2>Nearby Wi-Fi Networks</h2>
+                        <p>Wireless access points detected by this computer</p>
+                    </div>
+                    <button type="button" class="scan-button" id="scanWifiButton">
+                        Scan Again
+                    </button>
+                </div>
+
+                <div class="wifi-summary">
+                    <div class="wifi-summary-card">
+                        <span class="wifi-summary-label">Detected Networks</span>
+                        <strong id="wifiNetworkCount">--</strong>
+                    </div>
+                    <div class="wifi-summary-card">
+                        <span class="wifi-summary-label">Access Points</span>
+                        <strong id="wifiAccessPointCount">--</strong>
+                    </div>
+                    <span id="wifiScanStatus" class="wifi-scan-status">
+                        Waiting for scan...
+                    </span>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="wifi-table">
+                        <thead>
+                            <tr>
+                                <th>Network Name</th>
+                                <th>Signal</th>
+                                <th>Band</th>
+                                <th>Channel</th>
+                                <th>Security</th>
+                                <th>Radio</th>
+                                <th>BSSID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wifiNetworkTable">
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    Waiting for Wi-Fi scan...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="wifi-note">
+                    Signal strength indicates wireless reception, not internet speed.
+                </p>
+            </section>
+
+            <section class="panel" id="interfaces">
+                <div class="panel-header">
+                    <div>
+                        <h2>Network Interfaces</h2>
+                        <p>Detected interfaces and connection details</p>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Interface</th>
+                                <th>Status</th>
+                                <th>IPv4 Address</th>
+                                <th>Link Speed</th>
+                                <th>Download</th>
+                                <th>Upload</th>
+                            </tr>
+                        </thead>
+                        <tbody id="interfaceTable">
+                            <tr>
+                                <td colspan="6" class="empty-state">Waiting for network data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer class="footer">
+                <span>NetTrack Network Intelligence</span>
+                <span id="lastUpdated">Waiting for first update...</span>
+            </footer>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/location.js') }}"></script>
+
+</body>
+</html>
