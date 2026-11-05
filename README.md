@@ -1,7 +1,3 @@
-from pathlib import Path
-
-content = """# NetTrack
-
 **Smart Network Monitoring and Location Intelligence System**
 
 NetTrack is a Flask-based network monitoring dashboard designed to monitor network activity, inspect nearby Wi-Fi networks, and provide GPS-based location intelligence. It stores network measurements in SQLite and exposes APIs for dashboard data and location-based speed-test records.
@@ -204,7 +200,4 @@ This project is under active development. Before making changes:
 ## License
 
 No license has been added yet. Unless a license is added to this repository, standard copyright restrictions apply.
-"""
-path = Path("/mnt/data/README.md")
-path.write_text(content, encoding="utf-8")
-print(f"Created {path} ({path.stat().st_size} bytes)")
+""
